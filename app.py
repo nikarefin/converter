@@ -35,11 +35,7 @@ def convert(message):
             raise APIException('Должно быть 3 параметра')
 
         base, quote, amount = values
-
-        if str(amount).isalpha():
-            raise APIException('Количество должна быть числом')
-
-        total_base, base_unit, quote_unit = Convertion.get_price(base, quote)
+        total_base, base_unit, quote_unit = Convertion.get_price(base, quote, amount)
 
     except APIException as e:
         bot.reply_to(message, f'*Ошибка пользователя*\n{e}')
@@ -50,7 +46,7 @@ def convert(message):
         total = Convertion.pretty_number(total, 'float')
         amount = Convertion.pretty_number(amount, 'int')
 
-        text = f'{amount} {base_unit} = {total} {quote_unit}'
+        text = f'*{amount}* {base_unit} = *{total}* {quote_unit}'
         bot.send_message(message.chat.id, text)
 
 

@@ -9,11 +9,19 @@ class APIException(Exception):
 
 class Convertion:
     @staticmethod
-    def get_price(base: str, quote: str):
+    def get_price(base: str, quote: str, amount: str):
         base = base.lower()
         quote = quote.lower()
         right_base = None
         right_quote = None
+
+        if base == quote:
+            raise APIException('Валюты должны быть разные')
+
+        try:
+            amount = float(amount)
+        except ValueError:
+            raise APIException('Количество должно быть числом')
 
         for currency in currencies:
             if currencies[currency][0] in base:
@@ -32,14 +40,12 @@ class Convertion:
         if not right_quote:
             raise APIException(f'Ошиблись в написании валюты «{quote}»')
 
-        if base.lower() == quote:
-            raise APIException('Валюты должны быть разные')
-
         r = requests.get(
             f'https://min-api.cryptocompare.com/data/price?fsym={base}'
             f'&tsyms={quote}')
+        total_base = json.loads(r.content)[quote]
 
-        return json.loads(r.content)[quote], base_unit, quote_unit
+        return total_base, base_unit, quote_unit
 
     @staticmethod
     def pretty_number(number, number_type: str):
